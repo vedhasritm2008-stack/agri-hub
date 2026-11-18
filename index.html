@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Smart Agri Hub: Sell Smart</title>
+<style>
+:root{--bg:#f6f8f3;--card:#fff;--ink:#1d2a1f;--mut:#5d6b60;--acc:#2f7d32;--acc2:#e8f3e6;--warn:#b45309;--warnbg:#fff4e0;--line:#dfe6db}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111a13;--card:#1a251c;--ink:#e8f0e6;--mut:#9fb0a2;--acc:#6fcf74;--acc2:#213a24;--warn:#fbbf24;--warnbg:#2c2410;--line:#2c3b2f}}
+:root[data-theme="dark"]{--bg:#111a13;--card:#1a251c;--ink:#e8f0e6;--mut:#9fb0a2;--acc:#6fcf74;--acc2:#213a24;--warn:#fbbf24;--warnbg:#2c2410;--line:#2c3b2f}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Kannada",sans-serif;line-height:1.5}
+header{background:var(--acc);color:#fff;padding:18px 20px}
+header .in,main{max-width:900px;margin:0 auto}
+header .in{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:1.4rem}header p{margin:2px 0 0;opacity:.9;font-size:.95rem}
+.lang button{background:transparent;border:1px solid #fff;color:#fff;padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.9rem}
+.lang button.on{background:#fff;color:var(--acc);font-weight:600}
+main{padding:16px}
+.note{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.88rem;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:1.1rem}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+label{display:block;font-size:.85rem;color:var(--mut);margin-bottom:4px}
+select,input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:1rem;background:var(--bg);color:var(--ink)}
+.btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+button.p,button.s{padding:11px 18px;border-radius:10px;font-size:1rem;cursor:pointer;border:1px solid var(--acc)}
+button.p{background:var(--acc);color:#fff}button.s{background:var(--acc2);color:var(--acc)}
+#heard{margin-top:10px;font-size:.9rem;color:var(--mut);font-style:italic}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.kpi{background:var(--acc2);border-radius:12px;padding:12px}
+.kpi small{color:var(--mut);display:block}.kpi b{font-size:1.25rem}
+.bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.9rem}
+.bar .n{width:190px;flex-shrink:0}.bar .t{flex:1;background:var(--acc2);border-radius:6px;height:22px;overflow:hidden}
+.bar .f{background:var(--acc);height:100%}.bar .v{width:90px;text-align:right;font-weight:600}
+.advice{padding:12px;border-radius:10px;background:var(--acc2);margin-top:10px;font-weight:600}
+.loss{padding:12px;border-radius:10px;background:var(--warnbg);color:var(--warn);font-weight:600;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:.9rem;display:block;overflow-x:auto}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+svg{width:100%;height:90px}
+footer{text-align:center;color:var(--mut);font-size:.8rem;padding:16px}
+@media(max-width:560px){.bar .n{width:110px}}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div><h1 data-i="title"></h1><p data-i="tag"></p></div>
+  <div class="lang"><button id="en" class="on">English</button> <button id="kn">ಕನ್ನಡ</button></div>
+</div></header>
+<main>
+<div class="note" data-i="note"></div>
+
+<div class="card">
+  <h2 data-i="ask"></h2>
+  <div class="row">
+    <div><label data-i="crop"></label><select id="crop"></select></div>
+    <div><label data-i="dist"></label><select id="dist"></select></div>
+    <div><label data-i="taluk"></label><select id="taluk"></select></div>
+    <div><label data-i="qty"></label><input id="qty" type="number" min="1" value="20"></div>
+  </div>
+  <div class="btns">
+    <button class="p" id="go" data-i="go"></button>
+    <button class="s" id="mic" data-i="mic"></button>
+  </div>
+  <div id="heard"></div>
+</div>
+
+<div id="out"></div>
+
+<div class="card">
+  <h2 data-i="reg"></h2>
+  <div class="row">
+    <div><label data-i="soldAt"></label><select id="soldM"></select></div>
+    <div><label data-i="soldP"></label><input id="soldP" type="number" value="1400"></div>
+  </div>
+  <div class="btns"><button class="s" id="regGo" data-i="regGo"></button></div>
+  <div id="regOut"></div>
+</div>
+
+<div class="card">
+  <h2 data-i="set"></h2>
+  <div class="row">
+    <div><label data-i="rate"></label><input id="rate" type="number" value="22"></div>
+    <div><label data-i="cap"></label><input id="cap" type="number" value="25"></div>
+    <div><label data-i="csv"></label><input id="file" type="file" accept=".csv"></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <div><label data-i="comm"></label><input id="comm" type="number" value="4"></div>
+    <div><label data-i="load"></label><input id="load" type="number" value="15"></div>
+    <div><label data-i="spoil"></label><input id="spoil" type="number" value="2"></div>
+    <div><label data-i="farmers"></label><input id="farmers" type="number" min="1" value="3"></div>
+    <div><label data-i="tgt"></label><input id="tgt" type="number" placeholder="e.g. 1900"></div>
+    <div><label data-i="maxkm"></label><input id="maxkm" type="number" value="150"></div>
+  </div>
+</div>
+</main>
+<footer data-i="foot"></footer>
+
+<script>
+const T={
+en:{title:"Smart Agri Hub: Sell Smart",tag:"Know where to sell. Earn more.",
+note:"Prices shown are illustrative sample data, not real. Upload a real CSV (date,mandi,crop,price_per_quintal) in Settings before presenting.",
+ask:"Where should I sell?",crop:"Crop",loc:"Your location",qty:"Quantity (quintals)",go:"Find best market",mic:"🎤 Speak",
+best:"Best market",net:"Net earnings after transport",extra:"Extra vs selling locally",all:"Net earnings by market",
+trend:"Price trend (last 14 days)",rising:"Prices are rising. If you can store safely, wait 2 to 3 days.",
+falling:"Prices are falling. Sell soon.",stable:"Prices are steady. Sell when convenient.",
+reg:"Regret Calculator",soldAt:"Where did you sell?",soldP:"Price you got (₹/quintal)",regGo:"Check my loss",
+lost:"You may have lost about",lostB:"Best option was",noLoss:"Good choice! You sold at the best option.",
+set:"Settings (assumptions)",rate:"Truck rate (₹ per km per trip)",cap:"Truck capacity (quintals)",csv:"Upload price CSV",
+foot:"Trend is an indicator, not a guarantee. Data source and date should always be shown.",
+mkt:"Market",price:"Price/qtl",dist:"Km",transp:"Transport",nodata:"No data for this location.",
+nomic:"Voice input is not supported in this browser. Please use Chrome.",heard:"I heard: ",date:"Data date: ",listening:"Listening… speak now",micBlocked:"Microphone is blocked. Allow the mic in the browser address bar, and open this page on https or localhost (Chrome).",noSpeech:"Did not hear anything. Please try again.",micNet:"Voice recognition needs internet.",
+wx:"Weather on your route",wxLoad:"Loading weather…",wxFail:"Weather needs internet. Could not load it now.",
+hot:"Hot day: travel early morning or evening and keep crates ventilated.",rain:"Rain likely: cover the load with a tarpaulin and allow extra time.",
+wxOk:"Good conditions for transport.",today:"Today",d1:"Tomorrow",d2:"Day after",rainw:"rain",
+wait:"Sell now or wait 3 days?",nowNet:"Sell now",waitNet:"After 3 days (estimate)",
+waitBetter:"Waiting may earn more, if storage is safe.",nowBetter:"Selling now looks better after storage loss.",
+pool:"Share a truck with neighbours",poolTxt:"Transport per farmer",poolSave:"You save",share:"📤 Share on WhatsApp",
+tgt:"Alert me when price reaches (₹/quintal)",tgtHit:"🔔 Target price reached!",tgtMiss:"Target not reached yet. Best price now:",
+comm:"Commission (%)",load:"Loading cost (₹/quintal)",spoil:"Storage loss (% per day)",farmers:"Farmers sharing the truck",dist:"District",taluk:"Taluk",maxkm:"Max distance to market (km)"},
+kn:{title:"ಸ್ಮಾರ್ಟ್ ಅಗ್ರಿ ಹಬ್: ಸ್ಮಾರ್ಟ್ ಆಗಿ ಮಾರಿ",tag:"ಎಲ್ಲಿ ಮಾರಬೇಕು ತಿಳಿಯಿರಿ. ಹೆಚ್ಚು ಗಳಿಸಿ.",
+note:"ತೋರಿಸಿರುವ ಬೆಲೆಗಳು ಮಾದರಿ ಡೇಟಾ, ನಿಜವಾದವಲ್ಲ. ಪ್ರಸ್ತುತಪಡಿಸುವ ಮೊದಲು ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ನಿಜವಾದ CSV ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.",
+ask:"ನಾನು ಎಲ್ಲಿ ಮಾರಬೇಕು?",crop:"ಬೆಳೆ",loc:"ನಿಮ್ಮ ಸ್ಥಳ",qty:"ಪ್ರಮಾಣ (ಕ್ವಿಂಟಾಲ್)",go:"ಉತ್ತಮ ಮಾರುಕಟ್ಟೆ ಹುಡುಕಿ",mic:"🎤 ಮಾತನಾಡಿ",
+best:"ಉತ್ತಮ ಮಾರುಕಟ್ಟೆ",net:"ಸಾಗಣೆ ನಂತರದ ಆದಾಯ",extra:"ಸ್ಥಳೀಯವಾಗಿ ಮಾರುವುದಕ್ಕಿಂತ ಹೆಚ್ಚು",all:"ಮಾರುಕಟ್ಟೆವಾರು ಆದಾಯ",
+trend:"ಬೆಲೆ ಪ್ರವೃತ್ತಿ (ಕಳೆದ 14 ದಿನ)",rising:"ಬೆಲೆ ಏರುತ್ತಿದೆ. ಸುರಕ್ಷಿತವಾಗಿ ಇಡಲು ಸಾಧ್ಯವಾದರೆ 2-3 ದಿನ ಕಾಯಿರಿ.",
+falling:"ಬೆಲೆ ಇಳಿಯುತ್ತಿದೆ. ಬೇಗ ಮಾರಿ.",stable:"ಬೆಲೆ ಸ್ಥಿರವಾಗಿದೆ. ಅನುಕೂಲವಾದಾಗ ಮಾರಿ.",
+reg:"ವಿಷಾದ ಕ್ಯಾಲ್ಕುಲೇಟರ್",soldAt:"ಎಲ್ಲಿ ಮಾರಿದಿರಿ?",soldP:"ನಿಮಗೆ ಸಿಕ್ಕ ಬೆಲೆ (₹/ಕ್ವಿಂಟಾಲ್)",regGo:"ನನ್ನ ನಷ್ಟ ನೋಡಿ",
+lost:"ನೀವು ಸುಮಾರು ಇಷ್ಟು ಕಳೆದುಕೊಂಡಿರಬಹುದು:",lostB:"ಉತ್ತಮ ಆಯ್ಕೆ:",noLoss:"ಒಳ್ಳೆಯ ಆಯ್ಕೆ! ನೀವು ಉತ್ತಮ ಸ್ಥಳದಲ್ಲಿ ಮಾರಿದ್ದೀರಿ.",
+set:"ಸೆಟ್ಟಿಂಗ್ಸ್ (ಊಹೆಗಳು)",rate:"ಟ್ರಕ್ ದರ (₹ ಪ್ರತಿ ಕಿ.ಮೀ ಪ್ರತಿ ಟ್ರಿಪ್)",cap:"ಟ್ರಕ್ ಸಾಮರ್ಥ್ಯ (ಕ್ವಿಂಟಾಲ್)",csv:"ಬೆಲೆ CSV ಅಪ್‌ಲೋಡ್",
+foot:"ಪ್ರವೃತ್ತಿ ಒಂದು ಸೂಚನೆ ಮಾತ್ರ, ಖಾತರಿಯಲ್ಲ.",
+mkt:"ಮಾರುಕಟ್ಟೆ",price:"ಬೆಲೆ/ಕ್ವಿ.",dist:"ಕಿ.ಮೀ",transp:"ಸಾಗಣೆ",nodata:"ಈ ಸ್ಥಳಕ್ಕೆ ಡೇಟಾ ಇಲ್ಲ.",
+nomic:"ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ. Chrome ಬಳಸಿ.",heard:"ನಾನು ಕೇಳಿದ್ದು: ",date:"ಡೇಟಾ ದಿನಾಂಕ: ",listening:"ಕೇಳುತ್ತಿದ್ದೇನೆ… ಈಗ ಮಾತನಾಡಿ",micBlocked:"ಮೈಕ್ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಮೈಕ್ ಅನುಮತಿಸಿ.",noSpeech:"ಧ್ವನಿ ಕೇಳಿಸಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",micNet:"ಧ್ವನಿ ಗುರುತಿಸಲು ಇಂಟರ್ನೆಟ್ ಬೇಕು.",
+wx:"ಮಾರ್ಗದ ಹವಾಮಾನ",wxLoad:"ಹವಾಮಾನ ಲೋಡ್ ಆಗುತ್ತಿದೆ…",wxFail:"ಹವಾಮಾನಕ್ಕೆ ಇಂಟರ್ನೆಟ್ ಬೇಕು. ಈಗ ಲೋಡ್ ಆಗಲಿಲ್ಲ.",
+hot:"ಬಿಸಿ ದಿನ: ಬೆಳಿಗ್ಗೆ ಅಥವಾ ಸಂಜೆ ಸಾಗಿಸಿ, ಕ್ರೇಟ್‌ಗೆ ಗಾಳಿ ಇರಲಿ.",rain:"ಮಳೆ ಸಾಧ್ಯತೆ: ಲೋಡ್‌ಗೆ ಟಾರ್ಪಾಲಿನ್ ಮುಚ್ಚಿ, ಹೆಚ್ಚು ಸಮಯ ಇಟ್ಟುಕೊಳ್ಳಿ.",
+wxOk:"ಸಾಗಣೆಗೆ ಉತ್ತಮ ಹವಾಮಾನ.",today:"ಇಂದು",d1:"ನಾಳೆ",d2:"ನಾಡಿದ್ದು",rainw:"ಮಳೆ",
+wait:"ಈಗ ಮಾರಬೇಕೆ ಅಥವಾ 3 ದಿನ ಕಾಯಬೇಕೆ?",nowNet:"ಈಗ ಮಾರಿದರೆ",waitNet:"3 ದಿನದ ನಂತರ (ಅಂದಾಜು)",
+waitBetter:"ಸುರಕ್ಷಿತವಾಗಿ ಇಡಲು ಸಾಧ್ಯವಾದರೆ ಕಾಯುವುದು ಲಾಭ.",nowBetter:"ಸಂಗ್ರಹ ನಷ್ಟದ ನಂತರ ಈಗ ಮಾರುವುದು ಉತ್ತಮ.",
+pool:"ನೆರೆಹೊರೆಯವರೊಂದಿಗೆ ಟ್ರಕ್ ಹಂಚಿಕೊಳ್ಳಿ",poolTxt:"ಪ್ರತಿ ರೈತನಿಗೆ ಸಾಗಣೆ",poolSave:"ನಿಮ್ಮ ಉಳಿತಾಯ",share:"📤 ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಹಂಚಿ",
+tgt:"ಬೆಲೆ ಇಷ್ಟು ತಲುಪಿದಾಗ ಸೂಚಿಸಿ (₹/ಕ್ವಿಂಟಾಲ್)",tgtHit:"🔔 ಗುರಿ ಬೆಲೆ ತಲುಪಿದೆ!",tgtMiss:"ಗುರಿ ಇನ್ನೂ ತಲುಪಿಲ್ಲ. ಈಗಿನ ಉತ್ತಮ ಬೆಲೆ:",
+comm:"ಕಮಿಷನ್ (%)",load:"ಲೋಡಿಂಗ್ ವೆಚ್ಚ (₹/ಕ್ವಿಂಟಾಲ್)",spoil:"ಸಂಗ್ರಹ ನಷ್ಟ (% ಪ್ರತಿ ದಿನ)",farmers:"ಟ್ರಕ್ ಹಂಚಿಕೊಳ್ಳುವ ರೈತರು",dist:"ಜಿಲ್ಲೆ",taluk:"ತಾಲೂಕು",maxkm:"ಮಾರುಕಟ್ಟೆಗೆ ಗರಿಷ್ಠ ದೂರ (ಕಿ.ಮೀ)"}
+};
+let L="en";const t=k=>T[L][k];
+const $=id=>document.getElementById(id);
+const inr=n=>"₹"+Math.round(n).toLocaleString("en-IN");
+
+/* APPROXIMATE taluk coordinates. Extend with all 31 districts / 240 taluks as needed. */
+const TAL={
+Kolar:{Kolar:[13.14,78.13],Malur:[13.0,77.94],Bangarapet:[12.99,78.18],Mulbagal:[13.16,78.39],Srinivaspur:[13.34,78.21],KGF:[12.96,78.27]},
+Chikkaballapur:{Chikkaballapur:[13.43,77.73],Chintamani:[13.4,78.06],Gauribidanur:[13.61,77.52],Sidlaghatta:[13.39,77.86],Bagepalli:[13.78,77.8],Gudibande:[13.68,77.7]},
+"Bengaluru Urban":{"Bengaluru North":[13.04,77.57],"Bengaluru South":[12.89,77.58],"Bengaluru East":[12.99,77.72],Anekal:[12.71,77.69],Yelahanka:[13.1,77.59]},
+"Bengaluru Rural":{Devanahalli:[13.25,77.71],Doddaballapur:[13.29,77.54],Hoskote:[13.07,77.8],Nelamangala:[13.1,77.39]},
+Tumakuru:{Tumakuru:[13.34,77.1],Tiptur:[13.26,76.48],Sira:[13.74,76.9],Madhugiri:[13.66,77.21],Kunigal:[13.02,77.02]},
+Mysuru:{Mysuru:[12.3,76.64],Nanjangud:[12.12,76.68],"T. Narasipura":[12.21,76.9],Hunsur:[12.31,76.29],"KR Nagar":[12.44,76.38]},
+Mandya:{Mandya:[12.52,76.9],Maddur:[12.58,77.05],Srirangapatna:[12.42,76.69],Pandavapura:[12.49,76.68],Malavalli:[12.39,77.06]},
+Hassan:{Hassan:[13.0,76.1],Arsikere:[13.31,76.26],Channarayapatna:[12.9,76.39],Belur:[13.16,75.86],Holenarasipura:[12.79,76.24]},
+Davanagere:{Davanagere:[14.47,75.92],Harihar:[14.51,75.81],Channagiri:[14.02,75.93],Jagalur:[14.52,76.34],Honnali:[14.24,75.65]},
+Dharwad:{Dharwad:[15.46,75.01],Hubballi:[15.36,75.12],Kalghatgi:[15.18,75.04],Navalgund:[15.57,75.37],Kundgol:[15.26,75.25]},
+Belagavi:{Belagavi:[15.85,74.5],Gokak:[16.17,74.83],Athani:[16.73,75.07],Bailhongal:[15.81,74.86],Chikkodi:[16.43,74.6]}};
+const DKN={Kolar:"ಕೋಲಾರ",Chikkaballapur:"ಚಿಕ್ಕಬಳ್ಳಾಪುರ","Bengaluru Urban":"ಬೆಂಗಳೂರು ನಗರ","Bengaluru Rural":"ಬೆಂಗಳೂರು ಗ್ರಾಮಾಂತರ",Tumakuru:"ತುಮಕೂರು",Mysuru:"ಮೈಸೂರು",Mandya:"ಮಂಡ್ಯ",Hassan:"ಹಾಸನ",Davanagere:"ದಾವಣಗೆರೆ",Dharwad:"ಧಾರವಾಡ",Belagavi:"ಬೆಳಗಾವಿ"};
+/* APPROXIMATE market coordinates. Verify the real APMC list before presenting. */
+const MAND={Kolar:[13.136,78.129],Chikkaballapur:[13.435,77.727],Chintamani:[13.4,78.06],"Bengaluru (Yeshwanthpur)":[13.028,77.54],"Bengaluru (KR Market)":[12.963,77.576],Doddaballapur:[13.29,77.54],Ramanagara:[12.72,77.28],Tumakuru:[13.34,77.1],Mysuru:[12.3,76.64],Mandya:[12.52,76.9],Hassan:[13.0,76.1],Davanagere:[14.47,75.92],Hubballi:[15.36,75.12],Belagavi:[15.85,74.5]};
+/* b = sample base price Rs/quintal (illustrative), s = assumed storage loss %/day */
+const CROPS={tomato:{b:1500,s:3,kn:"ಟೊಮೆಟೊ"},onion:{b:1800,s:.5,kn:"ಈರುಳ್ಳಿ"},potato:{b:2000,s:.3,kn:"ಆಲೂಗಡ್ಡೆ"},"green chilli":{b:3500,s:2,kn:"ಹಸಿ ಮೆಣಸಿನಕಾಯಿ"},maize:{b:2200,s:.1,kn:"ಮೆಕ್ಕೆಜೋಳ"},ragi:{b:3800,s:.1,kn:"ರಾಗಿ"},banana:{b:2800,s:2,kn:"ಬಾಳೆಹಣ್ಣು"},beans:{b:4000,s:3,kn:"ಬೀನ್ಸ್"},cabbage:{b:1000,s:2,kn:"ಎಲೆಕೋಸು"},carrot:{b:2500,s:1.5,kn:"ಗಜ್ಜರಿ"}};
+
+/* ILLUSTRATIVE sample prices (NOT real). Replace by uploading a real CSV. */
+let prices=[];
+(function seed(){
+  let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+  const end=new Date(),ms=Object.keys(MAND);
+  for(const c in CROPS)ms.forEach((m,mi)=>{
+    const f=m.startsWith("Bengaluru")?(m.includes("KR")?1.15:1.12):0.9+((mi*5)%9)/50,dr=(r()-0.4)*0.012;
+    let p=CROPS[c].b*f;
+    for(let i=14;i>=0;i--){ d=new Date(end);d.setDate(end.getDate()-i);
+      p*=1+(r()-0.5)*0.03+(i<8?dr:0);
+      prices.push({date:d.toISOString().slice(0,10),mandi:m,crop:c,price:Math.round(p)});}
+  });
+})();
+const roadKm=(a,b)=>{const R=6371,d=Math.PI/180,dl=(b[0]-a[0])*d,dn=(b[1]-a[1])*d;
+  const h=Math.sin(dl/2)**2+Math.cos(a[0]*d)*Math.cos(b[0]*d)*Math.sin(dn/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h))*1.3;}; /* straight line x 1.3 = assumed road distance */
+const getOrigin=()=>({name:$("taluk").value+", "+$("dist").value,c:TAL[$("dist").value][$("taluk").value]});
+
+const transport=(km,q)=>km*(+$("rate").value)*Math.ceil(q/(+$("cap").value));
+const cropRows=c=>prices.filter(p=>p.crop===c).sort((a,b)=>a.date.localeCompare(b.date));
+
+function rank(crop,q,origin){
+  const rows=cropRows(crop),latest={};rows.forEach(r=>latest[r.mandi]=r);
+  const mk=+$("maxkm").value||150;
+  return Object.values(latest).map(r=>({r,km:MAND[r.mandi]?roadKm(origin.c,MAND[r.mandi]):Infinity})).filter(x=>x.km<=mk).map(({r,km})=>{
+    const tc=transport(km,q),cm=r.price*q*(+$("comm").value||0)/100,ld=(+$("load").value||0)*q;
+    return{mandi:r.mandi,price:r.price,km:Math.round(km),tc,cm,ld,net:r.price*q-tc-cm-ld,date:r.date};
+  }).sort((a,b)=>b.net-a.net);
+}
+function signal(series){
+  if(series.length<5)return["stable",0];
+  const avg=series.reduce((a,b)=>a+b)/series.length,s3=series.slice(-3).reduce((a,b)=>a+b)/3;
+  const ch=(s3-avg)/avg*100;return[ch>5?"rising":ch<-5?"falling":"stable",ch];
+}
+function spark(vals){
+  const mn=Math.min(...vals),mx=Math.max(...vals),w=400,h=80;
+  const pts=vals.map((v,i)=>`${(i/(vals.length-1))*w},${h-4-((v-mn)/(mx-mn||1))*(h-8)}`).join(" ");
+  return`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline fill="none" stroke="var(--acc)" stroke-width="3" points="${pts}"/></svg>`;
+}
+
+function run(){
+  const crop=$("crop").value,q=+$("qty").value||1,origin=getOrigin();
+  const R=rank(crop,q,origin);
+  if(!R.length){$("out").innerHTML=`<div class="card">${t("nodata")}</div>`;return;}
+  const best=R[0],local=R.reduce((a,b)=>a.km<=b.km?a:b),max=best.net;
+  const series=cropRows(crop).filter(r=>r.mandi===best.mandi).slice(-14).map(r=>r.price);
+  const[sig]=signal(series);
+  const extras=moreBlocks(best,series,q);
+  $("out").innerHTML=`<div class="card"><h2>${t("best")}</h2>
+    <div class="kpis">
+      <div class="kpi"><small>${t("best")}</small><b>${best.mandi}</b></div>
+      <div class="kpi"><small>${t("net")}</small><b>${inr(best.net)}</b></div>
+      <div class="kpi"><small>${t("extra")}</small><b>${inr(best.net-local.net)}</b></div>
+    </div>
+    <div class="advice">${t(sig)}</div>${extras}
+    <h2 style="margin-top:16px">${t("all")}</h2>
+    ${R.map(r=>`<div class="bar"><div class="n">${r.mandi}</div><div class="t"><div class="f" style="width:${Math.max(4,r.net/max*100)}%"></div></div><div class="v">${inr(r.net)}</div></div>`).join("")}
+    <h2 style="margin-top:16px">${t("trend")} · ${best.mandi}</h2>${spark(series)}
+    <table><tr><th>${t("mkt")}</th><th>${t("price")}</th><th>${t("dist")}</th><th>${t("transp")}</th></tr>
+    ${R.map(r=>`<tr><td>${r.mandi}</td><td>${inr(r.price)}</td><td>${r.km}</td><td>${inr(r.tc)}</td></tr>`).join("")}</table>
+    <p style="color:var(--mut);font-size:.85rem">${t("date")}${best.date}</p>
+    <div class="btns"><button class="s" id="shr">${t("share")}</button></div></div>`;
+  $("shr").onclick=()=>window.open("https://wa.me/?text="+encodeURIComponent(`Smart Agri Hub: best market for ${q} qtl ${crop}: ${best.mandi}, about ${inr(best.net)} after costs (${inr(best.net-local.net)} more than ${local.mandi}). ${t(sig)}`));
+  loadWeather(origin.name,origin.c,best.mandi,MAND[best.mandi]);
+}
+
+function moreBlocks(best,series,q){
+  const n=series.length,xm=(n-1)/2,ym=series.reduce((a,b)=>a+b)/n;
+  let num=0,den=0;series.forEach((y,i)=>{num+=(i-xm)*(y-ym);den+=(i-xm)**2;});
+  const p3=best.price+(den?num/den:0)*3,loss=1-(+$("spoil").value||0)/100*3;
+  const waitNet=p3*q*loss-best.tc-p3*q*(+$("comm").value||0)/100-(+$("load").value||0)*q;
+  const nf=Math.max(1,+$("farmers").value||1),pooled=transport(best.km,q*nf)/nf;
+  let tg="";
+  try{const v=+$("tgt").value;localStorage.setItem("tgt",v||"");
+    if(v)tg=`<div class="${best.price>=v?"advice":"loss"}">${best.price>=v?t("tgtHit"):t("tgtMiss")+" "+inr(best.price)}</div>`;}catch(e){}
+  return `<h2 style="margin-top:16px">${t("wait")}</h2>
+   <div class="kpis"><div class="kpi"><small>${t("nowNet")}</small><b>${inr(best.net)}</b></div><div class="kpi"><small>${t("waitNet")}</small><b>${inr(waitNet)}</b></div></div>
+   <div class="advice">${waitNet>best.net?t("waitBetter"):t("nowBetter")}</div>
+   <h2 style="margin-top:16px">${t("pool")}</h2>
+   <div class="kpis"><div class="kpi"><small>${t("poolTxt")}</small><b>${inr(pooled)}</b></div><div class="kpi"><small>${t("poolSave")}</small><b>${inr(best.tc-pooled)}</b></div></div>
+   ${tg}
+   <h2 style="margin-top:16px">${t("wx")}</h2><div id="wx">${t("wxLoad")}</div>`;
+}
+/* Approximate coordinates (verify). Weather: Open-Meteo, free, needs internet. */
+async function wxOf(c){
+  if(!c)return null;
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c[0]}&longitude=${c[1]}&daily=temperature_2m_max,precipitation_probability_max&timezone=Asia%2FKolkata&forecast_days=3`);
+  return (await r.json()).daily;
+}
+async function loadWeather(a,ac,b,bc){
+  const el=$("wx");if(!el)return;
+  try{
+    const out=[];let hot=false,wet=false;
+    for(const [p,pc] of (a===b?[[a,ac]]:[[a,ac],[b,bc]])){
+      const d=await wxOf(pc);if(!d)continue;
+      out.push(`<p><b>${p}</b>: `+d.time.map((_,i)=>`${[t("today"),t("d1"),t("d2")][i]} ${Math.round(d.temperature_2m_max[i])}°C, ${t("rainw")} ${d.precipitation_probability_max[i]}%`).join(" · ")+"</p>");
+      if(d.temperature_2m_max[0]>=35||d.temperature_2m_max[1]>=35)hot=true;
+      if(d.precipitation_probability_max[0]>=60||d.precipitation_probability_max[1]>=60)wet=true;
+    }
+    if(!out.length)throw 0;
+    el.innerHTML=out.join("")+`<div class="${hot||wet?"loss":"advice"}">${hot?t("hot")+" ":""}${wet?t("rain"):""}${hot||wet?"":t("wxOk")}</div>`;
+  }catch(e){el.textContent=t("wxFail");}
+}
+function regret(){
+  const crop=$("crop").value,q=+$("qty").value||1,origin=getOrigin();
+  const R=rank(crop,q,origin);if(!R.length)return;
+  const sm=$("soldM").value,km=MAND[sm]?roadKm(origin.c,MAND[sm]):0;
+  const sp=+$("soldP").value,soldNet=sp*q-transport(km,q)-sp*q*(+$("comm").value||0)/100-(+$("load").value||0)*q,lost=R[0].net-soldNet;
+  $("regOut").innerHTML=lost>0
+    ?`<div class="loss">${t("lost")} ${inr(lost)}. ${t("lostB")} ${R[0].mandi}.</div>`
+    :`<div class="advice">${t("noLoss")}</div>`;
+}
+
+function setv(id,v){if(v&&[...$(id).options].some(o=>o.value===v))$(id).value=v;}
+function fillTaluks(tv){$("taluk").innerHTML=Object.keys(TAL[$("dist").value]).map(x=>`<option>${x}</option>`).join("");setv("taluk",tv);}
+function fillSelects(){
+  const cv=$("crop").value,mv=$("soldM").value,dv=$("dist").value,tv=$("taluk").value;
+  const crops=[...new Set(prices.map(p=>p.crop))],mandis=[...new Set(prices.map(p=>p.mandi))];
+  const cn=c=>L==="kn"&&CROPS[c]?CROPS[c].kn:c.charAt(0).toUpperCase()+c.slice(1);
+  $("crop").innerHTML=crops.map(c=>`<option value="${c}">${cn(c)}</option>`).join("");
+  $("soldM").innerHTML=mandis.map(m=>`<option>${m}</option>`).join("");
+  $("dist").innerHTML=Object.keys(TAL).map(d=>`<option value="${d}">${L==="kn"&&DKN[d]?DKN[d]:d}</option>`).join("");
+  setv("crop",cv);setv("soldM",mv);setv("dist",dv);fillTaluks(tv);
+}
+function applyLang(){
+  document.documentElement.lang=L;fillSelects();
+  document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));
+  $("en").classList.toggle("on",L==="en");$("kn").classList.toggle("on",L==="kn");
+  if($("out").innerHTML)run();
+}
+function listen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert(t("nomic"));return;}
+  const r=new SR();r.lang=L==="kn"?"kn-IN":"en-IN";
+  r.onstart=()=>{$("heard").textContent=t("listening");};
+  r.onerror=e=>{const k=e.error;
+    if(k==="language-not-supported"&&r.lang!=="en-IN"){$("heard").textContent="Kannada voice not supported here, trying English…";const r2=new SR();r2.lang="en-IN";r2.onresult=r.onresult;r2.start();return;}
+    $("heard").textContent=(k==="not-allowed"||k==="service-not-allowed")?t("micBlocked"):k==="network"?t("micNet"):t("noSpeech");};
+  r.onresult=e=>{
+    const x=e.results[0][0].transcript,lx=x.toLowerCase();
+    $("heard").textContent=t("heard")+x;
+    const n=x.match(/\d+(\.\d+)?/);if(n)$("qty").value=n[0];
+    for(const d in TAL)for(const k in TAL[d])if(lx.includes(k.toLowerCase())){$("dist").value=d;fillTaluks(k);}
+    for(const c in CROPS)if(lx.includes(c)||x.includes(CROPS[c].kn))$("crop").value=c;
+    run();
+  };
+  r.start();
+}
+$("file").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;
+  f.text().then(txt=>{
+    const rows=txt.trim().split(/\r?\n/).slice(1).map(l=>l.split(","));
+    const parsed=rows.map(c=>({date:c[0],mandi:c[1],crop:(c[2]||"").toLowerCase(),price:+c[3]})).filter(p=>p.date&&p.mandi&&p.price);
+    if(parsed.length){prices=parsed;fillSelects();$("out").innerHTML="";}
+  });
+});
+$("go").onclick=run;$("regGo").onclick=regret;$("mic").onclick=listen;
+$("en").onclick=()=>{L="en";applyLang()};$("kn").onclick=()=>{L="kn";applyLang()};
+try{$("tgt").value=localStorage.getItem("tgt")||""}catch(e){}
+$("dist").onchange=()=>fillTaluks();
+$("crop").onchange=()=>{const c=CROPS[$("crop").value];if(c){$("spoil").value=c.s;$("soldP").value=c.b;}};
+fillSelects();$("crop").onchange();applyLang();
+</script>
+</body>
+</html>
